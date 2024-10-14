@@ -1,6 +1,6 @@
 {
   "name": "repotox",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Lightweight schematox schema based ORM for mogodb driver",
   "author": "Kanstantin Mazur",
   "license": "MIT",
