@@ -1,6 +1,6 @@
 {
   "name": "repotox",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Lightweight schematox schema based ORM for mogodb driver",
   "author": "Kanstantin Mazur",
   "license": "MIT",
@@ -15,8 +15,8 @@
     "schematox": "^0.4.0"
   },
   "repository": "git://github.com/incerta/repotox.git",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.ts",
   "scripts": {
     "prepare": "husky install",
     "test": "jest",
@@ -25,7 +25,7 @@
     "prettier-check": "prettier --check . || (echo \"Please use 'npm run prettify' to fix the issue\" && exit 1)",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "build": "rm -rf ./dist && cp -r src dist",
+    "build": "tsc && rm ./dist/types.d.ts ./dist/index.d.ts && cp ./src/types.ts ./src/index.ts ./dist",
     "quality-check": "npm run prettier-check && npm run lint && npm run type-check && npm run test",
     "check-n-build": "npm run quality-check && npm run build",
     "publish-patch": "npm run check-n-build && npm version patch && npm run check-n-build && npm publish",
