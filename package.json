@@ -1,6 +1,6 @@
 {
   "name": "repotox",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Lightweight schematox schema based ORM for mogodb driver",
   "author": "Kanstantin Mazur",
   "license": "MIT",
@@ -15,8 +15,8 @@
     "schematox": "^0.4.0"
   },
   "repository": "git://github.com/incerta/repotox.git",
-  "main": "dist/index.ts",
-  "types": "dist/index.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "prepare": "husky install",
     "test": "jest",
