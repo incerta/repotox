@@ -1,16 +1,13 @@
 volumes:
-  repotox_test_db:
-
+  db:
 services:
-  repotox_test_db:
-    build: .
-    container_name: ${DB_CONTAINER_NAME}
-    command:
-      ['mongod', '--replSet', 'rs', '--keyFile', '/etc/secrets/openssl-db-key']
+  db:
+    image: mongo:4.4
+    container_name: 'repotox_test_db'
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: 'root'
+      MONGO_INITDB_ROOT_PASSWORD: 'root'
     ports:
       - 127.0.0.1:27017:27017
     volumes:
-      - repotox_test_db:/data/db
+      - db:/data/db

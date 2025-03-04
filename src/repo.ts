@@ -8,10 +8,10 @@ import {
 import type { ClientSession, MongoClient } from 'mongodb'
 
 import type {
-  RepoTox,
-  InitRepo,
   CommonDoc,
+  InitRepo,
   MutationReport,
+  RepoTox,
   SafeRemoveResult,
 } from './types'
 
@@ -222,7 +222,7 @@ export async function initRepo<T extends Record<string, RepoTox>>(
           }
 
           case 'secondary-to-primary': {
-            const targetCollection = result[relation.targetCollectionName]
+            const targetCollection = result[relation.targetCollectionName]!
 
             if (targetCollection === undefined) {
               throw Error('Missing targetCollection')

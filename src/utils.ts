@@ -449,7 +449,7 @@ export function getModifiedRepo<T extends InitRepo<Record<string, RepoTox>>>(
   const result = {} as T
 
   for (const key in repo) {
-    const model = repo[key as keyof typeof repo] as RepoModel<any>
+    const model = repo[key as keyof typeof repo] as RepoModel
     const updatedModel: Record<keyof typeof model, unknown> = {
       tox: model.tox,
       relations: model.relations,
@@ -457,14 +457,14 @@ export function getModifiedRepo<T extends InitRepo<Record<string, RepoTox>>>(
       mongo: (_session?: ClientSession, _userId?: string) =>
         model.mongo(_session || session, _userId || userId),
 
-      get: (filter: any, _session?: ClientSession) =>
-        (model as any).get(filter, _session || session) as any,
+      get: (filter: never, _session?: ClientSession) =>
+        model.get(filter, _session || session),
 
-      post: (value: any, _session?: ClientSession, _userId?: string) =>
-        model.post(value, _session || session, _userId || userId) as any,
+      post: (value: never, _session?: ClientSession, _userId?: string) =>
+        model.post(value, _session || session, _userId || userId),
 
-      put: (value: any, _session?: ClientSession, _userId?: string) =>
-        model.put(value, _session || session, _userId || userId) as any,
+      put: (value: never, _session?: ClientSession, _userId?: string) =>
+        model.put(value, _session || session, _userId || userId),
 
       remove: (value: never, _session?: ClientSession, _userId?: string) =>
         model.remove(value, _session || session, _userId || userId),

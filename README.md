@@ -2,6 +2,10 @@
 
 Alpha version of lightweight schematox schema based ORM for mongodb driver.
 
-# TODO
+# Development Prerequisites
 
-- `InitRepo` generic must receive optional branded `userId` type and use it as `userId` nominal type.
+Run the testing db service from the project root directory:
+
+```sh
+docker-compose up -d
+```

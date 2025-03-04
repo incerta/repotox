@@ -85,7 +85,7 @@ export type SafeRemoveResult = {
 }
 
 export type RepoModel<
-  T extends RepoTox,
+  T extends RepoTox = RepoTox,
   U extends Record<string, unknown> = SubjectType<T>,
 > = {
   tox: T
