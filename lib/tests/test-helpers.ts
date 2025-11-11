@@ -1,12 +1,9 @@
 import { MongoClient } from 'mongodb'
-import { initRepo } from './repo'
+import { initRepo } from '../repo'
 
-import type { RepoTox } from './types'
+import type { RepoTox } from '../types'
 
 const DB_NAME = 'repotox_test_db'
-
-/* Check if U extends T */
-export const check = <T, U extends T = T>(...x: T[]): U[] => x as U[]
 
 let connection: ReturnType<typeof dbConnect> extends Promise<infer T>
   ? T

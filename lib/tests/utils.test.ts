@@ -1,8 +1,8 @@
-import { array, object, string } from 'schematox'
-import { FOREIGN_KEY_BRAND_TYPE } from './constants'
-import { getCollectionForeignKeyRelations } from './utils'
+import * as x from 'schematox'
+import { FOREIGN_KEY_BRAND_TYPE } from '../constants'
+import { getCollectionForeignKeyRelations } from '../utils'
 
-import type { FieldRelation } from './types'
+import type { FieldRelation } from '../types'
 
 describe('FieldRelation definition', () => {
   describe('Unilateral', () => {
@@ -23,15 +23,15 @@ describe('FieldRelation definition', () => {
     it.todo('dependencyKind: primary-to-secondary; cardinality: one-to-one')
 
     it('dependencyKind: primary-to-secondary; cardinality: one-to-many | many-to-one', () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
-        modelBIds: array(modelBId).optional(),
+        modelBIds: x.array(modelBId).optional(),
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId,
       })

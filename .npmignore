@@ -1,12 +1,14 @@
 /node_modules
-/src
-/.husky
 /.git
 /.gitignore
 /coverage
 /tsconfig.json
 /CONTRIBUTING.md
-/README.md
 /jest.config.js
 /.prettierrc.json
 /.prettierignore
+/lib/tests
+/docker-compose.yml
+/Dockerfile
+/openssl-db-key
+/release-check.sh

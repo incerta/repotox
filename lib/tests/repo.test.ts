@@ -1,15 +1,6 @@
-import {
-  array,
-  boolean,
-  literal,
-  number,
-  object,
-  string,
-  union,
-} from 'schematox'
-
+import * as x from 'schematox'
+import { ERROR, IGNORE_RELATION, FOREIGN_KEY_BRAND_TYPE } from '../constants'
 import { initRepoHelper, connectDB, dropDB } from './test-helpers'
-import { ERROR, IGNORE_RELATION, FOREIGN_KEY_BRAND_TYPE } from './constants'
 
 import type { SubjectType } from 'schematox'
 
@@ -21,17 +12,17 @@ describe('Repository initialization process', () => {
   afterEach(dropDB)
 
   it('Check discriminated union schema', async () => {
-    const modelA = union([
-      object({
-        id: number(),
-        kind: literal('variantA'),
-        variantAOnly: string(),
+    const modelA = x.union([
+      x.object({
+        id: x.number(),
+        kind: x.literal('variantA'),
+        variantAOnly: x.string(),
       }),
 
-      object({
-        id: number(),
-        kind: literal('variantB'),
-        variantBOnly: number(),
+      x.object({
+        id: x.number(),
+        kind: x.literal('variantB'),
+        variantBOnly: x.number(),
       }),
     ])
 
@@ -61,15 +52,15 @@ describe('Detection of missing user-defined relations', () => {
 
   describe('one-to-many and many-to-one cases', () => {
     it('skip case', () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
-        modelBIds: array(modelBId).description(IGNORE_RELATION),
+        modelBIds: x.array(modelBId).description(IGNORE_RELATION),
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
       })
 
@@ -77,15 +68,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('valid primary-to-secondary', () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
-        modelBIds: array(modelBId).optional(),
+        modelBIds: x.array(modelBId).optional(),
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId,
       })
@@ -94,15 +85,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('error: secondary to secondary dependency relation is forbidden', () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
-        modelBIds: array(modelBId),
+        modelBIds: x.array(modelBId),
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId,
       })
@@ -113,15 +104,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('error: corresponding model has no user-defined relation', () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
-        modelBIds: array(modelBId),
+        modelBIds: x.array(modelBId),
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         /* missing "modelAId" */
       })
@@ -132,17 +123,17 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('error: corresponding model has no user-defined relation (mirror case)', () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
         /* missing "modelBId" */
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
-        modelAIds: array(modelAId),
+        modelAIds: x.array(modelAId),
       })
 
       expect(() => initRepoHelper({ modelA, modelB })).rejects.toThrow(
@@ -153,15 +144,15 @@ describe('Detection of missing user-defined relations', () => {
 
   describe('one-to-one relation', () => {
     it('skip case', async () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
         modelBId: modelBId.description(IGNORE_RELATION),
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
       })
 
@@ -169,15 +160,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('valid primary-to-secondary', async () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
         modelBId: modelBId,
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId.optional(),
       })
@@ -186,17 +177,17 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('valid primary-to-secondary union', async () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = union([
-        object({
+      const modelA = x.union([
+        x.object({
           id: modelAId,
           modelBId: modelBId,
         }),
       ])
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId.optional(),
       })
@@ -205,15 +196,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('error: secondary to secondary dependency relation is forbidden', async () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
         modelBId: modelBId,
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId,
       })
@@ -224,15 +215,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('error: corresponding modelB has no user-defined relation', async () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
         modelBId: modelBId,
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         /* missing "modelAId" */
       })
@@ -243,15 +234,15 @@ describe('Detection of missing user-defined relations', () => {
     })
 
     it('error: corresponding modelB has no user-defined relation (mirror case)', async () => {
-      const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-      const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+      const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+      const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
-      const modelA = object({
+      const modelA = x.object({
         id: modelAId,
         /* missing "modelBId" */
       })
 
-      const modelB = object({
+      const modelB = x.object({
         id: modelBId,
         modelAId: modelAId,
       })
@@ -268,7 +259,7 @@ describe('Repo model "post" method', () => {
   afterEach(dropDB)
 
   it('Should throw if input does not satisfy model tox requirements', async () => {
-    const modelA = object({ id: number(), x: string() })
+    const modelA = x.object({ id: x.number(), x: x.string() })
     const repo = await initRepoHelper({ modelA })
 
     // @ts-expect-error Property 'x' is missing in type '{ id: number; }'
@@ -276,7 +267,7 @@ describe('Repo model "post" method', () => {
   })
 
   it('Should throw if not unique record id is found', async () => {
-    const modelA = object({ id: number() })
+    const modelA = x.object({ id: x.number() })
     const repo = await initRepoHelper({ modelA })
 
     await repo.modelA.post({ id: 0 })
@@ -286,9 +277,9 @@ describe('Repo model "post" method', () => {
   })
 
   it('Should set "updatedAt" property automatically', async () => {
-    const model = object({
-      id: number(),
-      updatedAt: number().optional(),
+    const model = x.object({
+      id: x.number(),
+      updatedAt: x.number().optional(),
     })
 
     const repo = await initRepoHelper({ model })
@@ -298,9 +289,9 @@ describe('Repo model "post" method', () => {
   })
 
   it('Should set "createdAt" property automatically', async () => {
-    const model = object({
-      id: number(),
-      createdAt: number().optional(),
+    const model = x.object({
+      id: x.number(),
+      createdAt: x.number().optional(),
     })
 
     const repo = await initRepoHelper({ model })
@@ -310,9 +301,9 @@ describe('Repo model "post" method', () => {
   })
 
   it('Should set "createdBy" property automatically if "userId" provided', async () => {
-    const model = object({
-      id: number(),
-      createdBy: string().optional(),
+    const model = x.object({
+      id: x.number(),
+      createdBy: x.string().optional(),
     })
 
     const userId = 'user-id-sample'
@@ -324,9 +315,9 @@ describe('Repo model "post" method', () => {
   })
 
   it('Should set "updatedBy" property automatically if "userId" provided', async () => {
-    const model = object({
-      id: number(),
-      updatedBy: string().optional(),
+    const model = x.object({
+      id: x.number(),
+      updatedBy: x.string().optional(),
     })
 
     const userId = 'user-id-sample'
@@ -338,13 +329,13 @@ describe('Repo model "post" method', () => {
   })
 
   it.skip('Must maintain "one-to-one" foreign key relation"', async () => {
-    const modelAId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
-    const modelBId = string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
+    const modelAId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelA')
+    const modelBId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'modelB')
 
     // if `modelBId` not optional I can't create the "parent" record
     // it will be a input data validation error
-    const modelA = object({ id: modelAId, modelBId: modelBId.optional() })
-    const modelB = object({ id: modelBId, modelAId })
+    const modelA = x.object({ id: modelAId, modelBId: modelBId.optional() })
+    const modelB = x.object({ id: modelBId, modelAId })
 
     type ModelA = SubjectType<typeof modelA>
     type ModelAId = ModelA['id']
@@ -375,7 +366,7 @@ describe('Repo model "put" method', () => {
   afterEach(dropDB)
 
   it('Should throw if input does not satisfy model tox requirements', async () => {
-    const modelA = object({ id: number(), x: string() })
+    const modelA = x.object({ id: x.number(), x: x.string() })
     const repo = await initRepoHelper({ modelA })
 
     await repo.modelA.post({ id: 0, x: 'x-value' })
@@ -385,7 +376,7 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should throw if required property is not exist', async () => {
-    const modelA = object({ id: number() })
+    const modelA = x.object({ id: x.number() })
     const repo = await initRepoHelper({ modelA })
 
     expect(() => repo.modelA.put({ id: 0 })).rejects.toThrow(
@@ -394,9 +385,9 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should set "updatedAt" property automatically', async () => {
-    const modelA = object({
-      id: number(),
-      updatedAt: number().optional(),
+    const modelA = x.object({
+      id: x.number(),
+      updatedAt: x.number().optional(),
     })
 
     const repo = await initRepoHelper({ modelA })
@@ -408,7 +399,7 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should not set "updatedAt" property automatically if the model has no such property', async () => {
-    const modelA = object({ id: number() })
+    const modelA = x.object({ id: x.number() })
 
     const repo = await initRepoHelper({ modelA })
     await repo.modelA.post({ id: 0 })
@@ -419,9 +410,9 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should set "updatedBy" property automatically if "userId" provided', async () => {
-    const modelA = object({
-      id: number(),
-      updatedBy: string().optional(),
+    const modelA = x.object({
+      id: x.number(),
+      updatedBy: x.string().optional(),
     })
 
     const creatorUserId = 'user-id-creator-sample'
@@ -439,9 +430,9 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should not set the "updatedBy" property automatically if "userId" is not provided', async () => {
-    const modelA = object({
-      id: number(),
-      updatedBy: string().optional(),
+    const modelA = x.object({
+      id: x.number(),
+      updatedBy: x.string().optional(),
     })
 
     const repo = await initRepoHelper({ modelA })
@@ -452,7 +443,7 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should not automatically set the "updatedBy" property if the model has no such property', async () => {
-    const modelA = object({ id: number() })
+    const modelA = x.object({ id: x.number() })
     const userIdSample = 'user-id-sample'
 
     const repo = await initRepoHelper({ modelA })
@@ -467,10 +458,10 @@ describe('Repo model "put" method', () => {
   })
 
   it('Should set not specified property values to undefined', async () => {
-    const sample = object({
-      id: number(),
-      a: string().optional(),
-      b: string().optional(),
+    const sample = x.object({
+      id: x.number(),
+      a: x.string().optional(),
+      b: x.string().optional(),
     })
 
     const repo = await initRepoHelper({ sample })
@@ -505,11 +496,11 @@ describe('Repo model "remove" method', () => {
   afterEach(dropDB)
 
   it('Should remove singular record by its id', async () => {
-    const id = number().brand('id', 'modelA')
+    const id = x.number().brand('id', 'modelA')
 
     type Id = SubjectType<typeof id>
 
-    const modelA = object({ id })
+    const modelA = x.object({ id })
 
     const repo = await initRepoHelper({ modelA })
 
@@ -532,7 +523,7 @@ describe('Repo model "remove" method', () => {
   })
 
   it('Should remove records multiple records in one instruction', async () => {
-    const modelA = object({ id: number() })
+    const modelA = x.object({ id: x.number() })
 
     const repo = await initRepoHelper({ modelA })
 
@@ -567,21 +558,25 @@ describe('Repo model "safeRemove" method', () => {
     modelE: 'modelE',
   } as const
 
-  const aId = string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelA)
-  const bId = string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelB)
-  const cId = string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelC)
-  const dId = string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelD)
+  const aId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelA)
+  const bId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelB)
+  const cId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelC)
+  const dId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, model.modelD)
 
-  it('dependant records must be staged for removal and removed after confirmation', async () => {
-    const modelA = object({ id: aId, modelBId: bId.optional() })
-    const modelB = object({ id: bId, modelAId: aId, modelCId: cId.optional() })
-    const modelC = object({
+  it('dependent records must be staged for removal and removed after confirmation', async () => {
+    const modelA = x.object({ id: aId, modelBId: bId.optional() })
+    const modelB = x.object({
+      id: bId,
+      modelAId: aId,
+      modelCId: cId.optional(),
+    })
+    const modelC = x.object({
       id: cId,
       modelBId: bId,
-      modelDIds: array(dId).optional(),
+      modelDIds: x.array(dId).optional(),
     })
 
-    const modelD = object({ id: dId, modelCId: cId })
+    const modelD = x.object({ id: dId, modelCId: cId })
 
     type A = SubjectType<typeof modelA>
     type B = SubjectType<typeof modelB>
@@ -760,12 +755,12 @@ describe('Repo model "safeRemove" method', () => {
   })
 
   it.skip('unilateral', async () => {
-    const modelA = object({ id: aId })
-    const modelB = object({ id: bId })
+    const modelA = x.object({ id: aId })
+    const modelB = x.object({ id: bId })
 
-    const modelC = object({
+    const modelC = x.object({
       id: cId,
-      resourceId: union([aId, bId]).description(IGNORE_RELATION),
+      resourceId: x.union([aId, bId]).description(IGNORE_RELATION),
     })
 
     const repo = await initRepoHelper({ modelA, modelB, modelC })
@@ -853,7 +848,7 @@ describe('Repo model "get" method', () => {
   afterEach(dropDB)
 
   it('no filtering', async () => {
-    const modelA = object({ id: number() })
+    const modelA = x.object({ id: x.number() })
     const repo = await initRepoHelper({ modelA })
     const collection = repo.modelA.mongo().collection
 
@@ -873,7 +868,7 @@ describe('Repo model "get" method', () => {
   })
 
   it('two fields eq direct lookup', async () => {
-    const modelA = object({ id: number(), a: string(), b: string() })
+    const modelA = x.object({ id: x.number(), a: x.string(), b: x.string() })
     const repo = await initRepoHelper({ modelA })
     const collection = repo.modelA.mongo().collection
 
@@ -896,7 +891,7 @@ describe('Repo model "get" method', () => {
   describe('Comparison operators', () => {
     describe('$eq', () => {
       it('singular field filter', async () => {
-        const modelA = object({ id: number() })
+        const modelA = x.object({ id: x.number() })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -913,7 +908,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('non existed value lookup', async () => {
-        const modelA = object({ id: number() })
+        const modelA = x.object({ id: x.number() })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -930,7 +925,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('undefined value lookup', async () => {
-        const modelA = object({ id: number(), x: string().optional() })
+        const modelA = x.object({ id: x.number(), x: x.string().optional() })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -949,7 +944,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('implicit $eq', async () => {
-        const modelA = object({ id: number() })
+        const modelA = x.object({ id: x.number() })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -966,7 +961,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('multiple fields filter', async () => {
-        const modelA = object({ id: number(), x: string() })
+        const modelA = x.object({ id: x.number(), x: x.string() })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -989,7 +984,7 @@ describe('Repo model "get" method', () => {
     })
 
     it('$in', async () => {
-      const modelA = object({ id: number() })
+      const modelA = x.object({ id: x.number() })
       const repo = await initRepoHelper({ modelA })
       const collection = repo.modelA.mongo().collection
 
@@ -1008,7 +1003,7 @@ describe('Repo model "get" method', () => {
 
   describe('Logical operators', () => {
     it('$or', async () => {
-      const modelA = object({ id: number(), x: boolean().optional() })
+      const modelA = x.object({ id: x.number(), x: x.boolean().optional() })
       const repo = await initRepoHelper({ modelA })
       const collection = repo.modelA.mongo().collection
 
@@ -1033,7 +1028,7 @@ describe('Repo model "get" method', () => {
     })
 
     it('$not', async () => {
-      const modelA = object({ id: number(), x: boolean().optional() })
+      const modelA = x.object({ id: x.number(), x: x.boolean().optional() })
       const repo = await initRepoHelper({ modelA })
       const collection = repo.modelA.mongo().collection
 
@@ -1058,7 +1053,7 @@ describe('Repo model "get" method', () => {
     })
 
     it('($not -> $eq) + $gt', async () => {
-      const modelA = object({ id: number(), x: boolean().optional() })
+      const modelA = x.object({ id: x.number(), x: x.boolean().optional() })
       const repo = await initRepoHelper({ modelA })
       const collection = repo.modelA.mongo().collection
 
@@ -1084,7 +1079,7 @@ describe('Repo model "get" method', () => {
     })
 
     it('$nor', async () => {
-      const modelA = object({ id: number(), x: boolean().optional() })
+      const modelA = x.object({ id: x.number(), x: x.boolean().optional() })
       const repo = await initRepoHelper({ modelA })
       const collection = repo.modelA.mongo().collection
 
@@ -1112,7 +1107,7 @@ describe('Repo model "get" method', () => {
   describe('Field value type specific', () => {
     describe('Array', () => {
       it('$eq explicit', async () => {
-        const modelA = object({ id: number(), x: array(string()) })
+        const modelA = x.object({ id: x.number(), x: x.array(x.string()) })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -1132,7 +1127,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('$eq implicit', async () => {
-        const modelA = object({ id: number(), x: array(string()) })
+        const modelA = x.object({ id: x.number(), x: x.array(x.string()) })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -1152,7 +1147,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('$in', async () => {
-        const modelA = object({ id: number(), x: array(string()) })
+        const modelA = x.object({ id: x.number(), x: x.array(x.string()) })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -1174,7 +1169,7 @@ describe('Repo model "get" method', () => {
       })
 
       it('$all', async () => {
-        const modelA = object({ id: number(), x: array(string()) })
+        const modelA = x.object({ id: x.number(), x: x.array(x.string()) })
         const repo = await initRepoHelper({ modelA })
         const collection = repo.modelA.mongo().collection
 
@@ -1200,7 +1195,7 @@ describe('Repo model "get" method', () => {
 
   describe('Deeply nested filtering operation examples', () => {
     it('double $not', async () => {
-      const modelA = object({ id: number(), x: string().optional() })
+      const modelA = x.object({ id: x.number(), x: x.string().optional() })
       const repo = await initRepoHelper({ modelA })
       const collection = repo.modelA.mongo().collection
 
