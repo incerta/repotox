@@ -1,28 +1,30 @@
 import type { ClientSession, Collection } from 'mongodb'
-
 import type {
-  SubjectType,
+  Infer,
   PrimitiveSchema,
-  BaseObjectSchema,
-  BaseUnionSchema,
+  ObjectSchema,
+  UnionSchema,
   StringSchema,
   NumberSchema,
   LiteralSchema,
-  BaseArraySchema,
-  EitherError,
+  ArraySchema,
+  ParseResult,
 } from 'schematox'
 
-export type BaseRepoModelSchema = BaseObjectSchema<
-  | PrimitiveSchema
-  | BaseUnionSchema<LiteralSchema<string> | StringSchema>
-  | BaseArraySchema<
-      | StringSchema
-      | NumberSchema
-      | BaseUnionSchema<StringSchema /* TODO: allow string literal */>
-    >
+export type BaseRepoModelSchema = ObjectSchema<
+  Record<
+    string,
+    | PrimitiveSchema
+    | UnionSchema<Array<LiteralSchema<string> | StringSchema>>
+    | ArraySchema<
+        | StringSchema
+        | NumberSchema
+        | UnionSchema<Array<StringSchema /* TODO: allow string literal */>>
+      >
+  >
 >
 
-export type UnionRepoModelSchema = BaseUnionSchema<BaseRepoModelSchema>
+export type UnionRepoModelSchema = UnionSchema<Array<BaseRepoModelSchema>>
 export type RepoModelSchema = BaseRepoModelSchema | UnionRepoModelSchema
 
 export type CommonDoc = {
@@ -74,8 +76,7 @@ export type FieldRelation = FieldRelationUnilateral | FieldRelationBilateral
 
 export type RepoTox = {
   __schema: RepoModelSchema
-  parse: (x: unknown) => EitherError<unknown, unknown>
-  validate: (x: unknown) => EitherError<unknown, unknown>
+  parse: (x: unknown) => ParseResult<unknown>
 }
 
 export type MutationReport = [brand: string, id: string]
@@ -86,7 +87,7 @@ export type SafeRemoveResult = {
 
 export type RepoModel<
   T extends RepoTox = RepoTox,
-  U extends Record<string, unknown> = SubjectType<T>,
+  U extends Record<string, unknown> = Infer<T>,
 > = {
   tox: T
   relations: FieldRelation[]

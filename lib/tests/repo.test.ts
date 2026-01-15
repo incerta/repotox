@@ -2,7 +2,7 @@ import * as x from 'schematox'
 import { ERROR, IGNORE_RELATION, FOREIGN_KEY_BRAND_TYPE } from '../constants'
 import { initRepoHelper, connectDB, dropDB } from './test-helpers'
 
-import type { SubjectType } from 'schematox'
+import type { Infer } from 'schematox'
 
 const sort = <T extends { id: number }>(a: T, b: T) => a.id - b.id
 const clone = <T extends Record<string, unknown>>(x: T) => ({ ...x })
@@ -29,7 +29,7 @@ describe('Repository initialization process', () => {
     const samples = [
       { id: 0, kind: 'variantA', variantAOnly: 'variantAOnly_value' },
       { id: 1, kind: 'variantB', variantBOnly: 0 },
-    ] satisfies Array<SubjectType<typeof modelA>>
+    ] satisfies Array<Infer<typeof modelA>>
 
     const repo = await initRepoHelper({ modelA })
     const { collection } = repo.modelA.mongo()
@@ -337,10 +337,10 @@ describe('Repo model "post" method', () => {
     const modelA = x.object({ id: modelAId, modelBId: modelBId.optional() })
     const modelB = x.object({ id: modelBId, modelAId })
 
-    type ModelA = SubjectType<typeof modelA>
+    type ModelA = Infer<typeof modelA>
     type ModelAId = ModelA['id']
 
-    type ModelB = SubjectType<typeof modelB>
+    type ModelB = Infer<typeof modelB>
     type ModelBId = ModelB['id']
 
     const modelASample = { id: 'A0' as ModelAId } satisfies ModelA
@@ -498,7 +498,7 @@ describe('Repo model "remove" method', () => {
   it('Should remove singular record by its id', async () => {
     const id = x.number().brand('id', 'modelA')
 
-    type Id = SubjectType<typeof id>
+    type Id = Infer<typeof id>
 
     const modelA = x.object({ id })
 
@@ -509,7 +509,7 @@ describe('Repo model "remove" method', () => {
       { id: 2 as Id },
       { id: 3 as Id },
       { id: 4 as Id },
-    ] satisfies Array<SubjectType<typeof modelA>>
+    ] satisfies Array<Infer<typeof modelA>>
 
     await repo.modelA.mongo().collection.insertMany(samples)
     await repo.modelA.remove(3 as Id)
@@ -532,7 +532,7 @@ describe('Repo model "remove" method', () => {
       { id: 2 },
       { id: 3 },
       { id: 4 },
-    ] satisfies Array<SubjectType<typeof modelA>>
+    ] satisfies Array<Infer<typeof modelA>>
 
     await repo.modelA.mongo().collection.insertMany(samples)
     await repo.modelA.remove([2, 3])
@@ -578,10 +578,10 @@ describe('Repo model "safeRemove" method', () => {
 
     const modelD = x.object({ id: dId, modelCId: cId })
 
-    type A = SubjectType<typeof modelA>
-    type B = SubjectType<typeof modelB>
-    type C = SubjectType<typeof modelC>
-    type D = SubjectType<typeof modelD>
+    type A = Infer<typeof modelA>
+    type B = Infer<typeof modelB>
+    type C = Infer<typeof modelC>
+    type D = Infer<typeof modelD>
 
     const repo = await initRepoHelper({ modelA, modelB, modelC, modelD })
 
@@ -765,9 +765,9 @@ describe('Repo model "safeRemove" method', () => {
 
     const repo = await initRepoHelper({ modelA, modelB, modelC })
 
-    type A = SubjectType<typeof modelA>
-    type B = SubjectType<typeof modelB>
-    type C = SubjectType<typeof modelC>
+    type A = Infer<typeof modelA>
+    type B = Infer<typeof modelB>
+    type C = Infer<typeof modelC>
 
     const sorter = (a: string, b: string) => a.localeCompare(b)
 
@@ -852,9 +852,7 @@ describe('Repo model "get" method', () => {
     const repo = await initRepoHelper({ modelA })
     const collection = repo.modelA.mongo().collection
 
-    const samples = [{ id: 1 }, { id: 2 }] satisfies Array<
-      SubjectType<typeof modelA>
-    >
+    const samples = [{ id: 1 }, { id: 2 }] satisfies Array<Infer<typeof modelA>>
 
     await collection.insertMany(samples.map(clone))
 
@@ -875,7 +873,7 @@ describe('Repo model "get" method', () => {
     const samples = [
       { id: 1, a: '1-a', b: '1-b' },
       { id: 2, a: '2-a', b: '2-b' },
-    ] satisfies Array<SubjectType<typeof modelA>>
+    ] satisfies Array<Infer<typeof modelA>>
 
     await collection.insertMany(samples.map(clone))
 
@@ -896,7 +894,7 @@ describe('Repo model "get" method', () => {
         const collection = repo.modelA.mongo().collection
 
         const samples = [{ id: 1 }, { id: 2 }] satisfies Array<
-          SubjectType<typeof modelA>
+          Infer<typeof modelA>
         >
 
         await collection.insertMany(samples.map(clone))
@@ -913,7 +911,7 @@ describe('Repo model "get" method', () => {
         const collection = repo.modelA.mongo().collection
 
         const samples = [{ id: 1 }, { id: 2 }] satisfies Array<
-          SubjectType<typeof modelA>
+          Infer<typeof modelA>
         >
 
         await collection.insertMany(samples.map(clone))
@@ -933,7 +931,7 @@ describe('Repo model "get" method', () => {
           { id: 1 },
           { id: 2, x: 'A' },
           { id: 3 },
-        ] satisfies Array<SubjectType<typeof modelA>>
+        ] satisfies Array<Infer<typeof modelA>>
 
         await collection.insertMany(samples.map(clone))
 
@@ -949,7 +947,7 @@ describe('Repo model "get" method', () => {
         const collection = repo.modelA.mongo().collection
 
         const samples = [{ id: 1 }, { id: 2 }] satisfies Array<
-          SubjectType<typeof modelA>
+          Infer<typeof modelA>
         >
 
         await collection.insertMany(samples.map(clone))
@@ -969,7 +967,7 @@ describe('Repo model "get" method', () => {
           { id: 1, x: 'a' },
           { id: 2, x: 'b' },
           { id: 3, x: 'b' },
-        ] satisfies Array<SubjectType<typeof modelA>>
+        ] satisfies Array<Infer<typeof modelA>>
 
         await collection.insertMany(samples.map(clone))
 
@@ -989,7 +987,7 @@ describe('Repo model "get" method', () => {
       const collection = repo.modelA.mongo().collection
 
       const samples = [{ id: 1 }, { id: 2 }, { id: 3 }] satisfies Array<
-        SubjectType<typeof modelA>
+        Infer<typeof modelA>
       >
 
       await collection.insertMany(samples.map(clone))
@@ -1012,7 +1010,7 @@ describe('Repo model "get" method', () => {
         { id: 2, x: false },
         { id: 3, x: undefined },
         { id: 4 },
-      ] satisfies Array<SubjectType<typeof modelA>>
+      ] satisfies Array<Infer<typeof modelA>>
 
       await collection.insertMany(samples.map(clone))
 
@@ -1037,7 +1035,7 @@ describe('Repo model "get" method', () => {
         { id: 2, x: false },
         { id: 3, x: undefined },
         { id: 4 },
-      ] satisfies Array<SubjectType<typeof modelA>>
+      ] satisfies Array<Infer<typeof modelA>>
 
       await collection.insertMany(samples.map(clone))
 
@@ -1062,7 +1060,7 @@ describe('Repo model "get" method', () => {
         { id: 2, x: false },
         { id: 3, x: undefined },
         { id: 4 },
-      ] satisfies Array<SubjectType<typeof modelA>>
+      ] satisfies Array<Infer<typeof modelA>>
 
       await collection.insertMany(samples.map(clone))
 
@@ -1088,7 +1086,7 @@ describe('Repo model "get" method', () => {
         { id: 1, x: false },
         { id: 2 },
         { id: 3 },
-      ] satisfies Array<SubjectType<typeof modelA>>
+      ] satisfies Array<Infer<typeof modelA>>
 
       await collection.insertMany(samples.map(clone))
 
@@ -1114,7 +1112,7 @@ describe('Repo model "get" method', () => {
         const samples = [
           { id: 0, x: ['a', 'b'] },
           { id: 1, x: ['b', 'a'] },
-        ] satisfies Array<SubjectType<typeof modelA>>
+        ] satisfies Array<Infer<typeof modelA>>
 
         await collection.insertMany(samples.map(clone))
 
@@ -1134,7 +1132,7 @@ describe('Repo model "get" method', () => {
         const samples = [
           { id: 0, x: ['a', 'b'] },
           { id: 1, x: ['b', 'a'] },
-        ] satisfies Array<SubjectType<typeof modelA>>
+        ] satisfies Array<Infer<typeof modelA>>
 
         await collection.insertMany(samples.map(clone))
 
@@ -1156,7 +1154,7 @@ describe('Repo model "get" method', () => {
           { id: 1, x: ['a'] },
           { id: 2, x: ['a', 'b'] },
           { id: 3, x: ['b', 'a'] },
-        ] satisfies Array<SubjectType<typeof modelA>>
+        ] satisfies Array<Infer<typeof modelA>>
 
         await collection.insertMany(samples.map(clone))
 
@@ -1179,7 +1177,7 @@ describe('Repo model "get" method', () => {
           { id: 2, x: ['a', 'b'] },
           { id: 3, x: ['b', 'a'] },
           { id: 4, x: ['b'] },
-        ] satisfies Array<SubjectType<typeof modelA>>
+        ] satisfies Array<Infer<typeof modelA>>
 
         await collection.insertMany(samples.map(clone))
 
@@ -1200,7 +1198,7 @@ describe('Repo model "get" method', () => {
       const collection = repo.modelA.mongo().collection
 
       const samples = [{ id: 0 }, { id: 1, x: 'A' }, { id: 2 }] satisfies Array<
-        SubjectType<typeof modelA>
+        Infer<typeof modelA>
       >
 
       await collection.insertMany(samples.map(clone))

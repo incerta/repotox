@@ -73,8 +73,8 @@ export async function initRepo<T extends Record<string, RepoTox>>(
 
       const either = tox.parse(input)
 
-      if (either.left) {
-        throw either.left
+      if (either.success === false) {
+        throw either.error
       }
 
       const uuid = await __uuid.findOne({ id: input.id })
@@ -89,7 +89,7 @@ export async function initRepo<T extends Record<string, RepoTox>>(
         throw Error(ERROR.recordAlreadyExists(collectionName, input.id))
       }
 
-      const stagedRecord = either.right as CommonDoc
+      const stagedRecord = either.data as CommonDoc
 
       await collection.replaceOne({ id: input.id }, stagedRecord, {
         upsert: true,
@@ -116,8 +116,8 @@ export async function initRepo<T extends Record<string, RepoTox>>(
 
       const either = tox.parse(input)
 
-      if (either.left) {
-        throw either.left
+      if (either.success === false) {
+        throw either.error
       }
 
       const [record] = await get({ id: input.id }, session)
@@ -126,7 +126,7 @@ export async function initRepo<T extends Record<string, RepoTox>>(
         throw new Error(ERROR.recordNotExists(collectionName, input.id))
       }
 
-      const stagedRecord = either.right as CommonDoc
+      const stagedRecord = either.data as CommonDoc
 
       for (const key of schemaKeys) {
         // @ts-expect-error absent props must be set to undefined

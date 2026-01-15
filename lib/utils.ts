@@ -51,9 +51,9 @@ export function getCollectionForeignKeyRelations(
       const brandsPool: string[] = []
 
       const extractForeignKeyBrand = (schema: {
-        brand?: readonly [string, string]
+        brand?: readonly [string, unknown]
         type: string
-      }) => {
+      }): string | undefined => {
         if ('brand' in schema && schema.brand) {
           const [brandType, brand] = schema.brand
 
@@ -63,6 +63,10 @@ export function getCollectionForeignKeyRelations(
               throw new Error(
                 `invalidForeignKeyBrandTypeUsage of :${collectionName}: ${sourceFieldKey}`
               )
+            }
+
+            if (typeof brand !== 'string') {
+              throw Error('Brand second tuple member is expected to be string')
             }
 
             return brand
