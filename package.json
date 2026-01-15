@@ -1,6 +1,6 @@
 {
   "name": "repotox",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "scripts": {
     "prepublishOnly": "bash release-check.sh",
     "test": "jest",
