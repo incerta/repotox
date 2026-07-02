@@ -2,7 +2,7 @@
   "name": "repotox",
   "version": "0.0.8",
   "scripts": {
-    "prepublishOnly": "bash release-check.sh",
+    "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -10,9 +10,7 @@
     "formatter:check": "prettier --check . || (echo \"ERROR: use `npm run formatter:fix`\" && exit 1)",
     "ts": "tsc --noEmit",
     "check": "npm run formatter:check && npm run ts && npm run test & npm run test:coverage",
-    "version:patch": "npm run check && npm version patch",
-    "version:minor": "npm run check && npm version minor",
-    "version:major": "npm run check && npm version major"
+    "publish:alpha": "bash scripts/publish-alpha.sh"
   },
   "peerDependencies": {
     "mongodb": "^6.8.0",
@@ -32,15 +30,23 @@
   "author": "Kanstantsin Mazur",
   "license": "MIT",
   "keywords": [
-    "ORM",
     "typescript",
     "schematox",
-    "mongodb"
+    "mongodb",
+    "ODM",
+    "ORM"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/incerta/repotox.git"
   },
-  "main": "lib/index.ts",
-  "types": "lib/index.ts"
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  }
 }
