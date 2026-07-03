@@ -1,5 +1,10 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as x from 'schematox'
-import { ERROR, IGNORE_RELATION, FOREIGN_KEY_BRAND_TYPE } from '../constants'
+import {
+  ERROR,
+  IGNORE_RELATION,
+  FOREIGN_KEY_BRAND_TYPE,
+} from '../lib/constants'
 import { initRepoHelper, connectDB, dropDB } from './test-helpers'
 
 import type { Infer } from 'schematox'

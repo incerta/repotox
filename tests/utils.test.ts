@@ -1,8 +1,9 @@
+import { describe, it, expect } from 'vitest'
 import * as x from 'schematox'
-import { FOREIGN_KEY_BRAND_TYPE } from '../constants'
-import { getCollectionForeignKeyRelations } from '../utils'
+import { FOREIGN_KEY_BRAND_TYPE } from '../lib/constants'
+import { getCollectionForeignKeyRelations } from '../lib/utils'
 
-import type { FieldRelation } from '../types'
+import type { FieldRelation } from '../lib/types'
 
 describe('FieldRelation definition', () => {
   describe('Unilateral', () => {
