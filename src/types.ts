@@ -19,7 +19,9 @@ export type BaseRepoModelSchema = ObjectSchema<
     | ArraySchema<
         | StringSchema
         | NumberSchema
-        | UnionSchema<Array<StringSchema /* TODO: allow string literal */>>
+        | UnionSchema<
+            Array<StringSchema | LiteralSchema<string> | LiteralSchema<number>>
+          >
       >
   >
 >
