@@ -1,17 +1,36 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
     "strict": true,
-    "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true,
-    "esModuleInterop": true,
+    "alwaysStrict": true,
+    "noUncheckedIndexedAccess": false,
+
+    "types": [],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+
+    "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
-    "downlevelIteration": true,
+
+    "removeComments": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+
     "declaration": true,
-    "outDir": "./dist"
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./lib"
   },
   "include": ["lib/**/*"]
 }

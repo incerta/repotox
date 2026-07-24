@@ -14,7 +14,7 @@ import type {
 export type BaseRepoModelSchema = ObjectSchema<
   Record<
     string,
-    | PrimitiveSchema
+    | Exclude<PrimitiveSchema, { type: 'bigint' }>
     | UnionSchema<Array<LiteralSchema<string> | StringSchema>>
     | ArraySchema<
         | StringSchema

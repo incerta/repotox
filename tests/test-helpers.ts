@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb'
-import { initRepo } from '../repo'
+import { initRepo } from '../lib/repo'
 
-import type { RepoTox } from '../types'
+import type { RepoTox } from '../lib/types'
 
 const DB_NAME = 'repotox_test_db'
 
