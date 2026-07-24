@@ -36,53 +36,9 @@ export type CommonDoc = {
   updatedBy?: string
 }
 
-export type FieldRelationUnilateral = {
-  dependencyKind:
-    | 'primary-unilateral' // reference is optional
-    | 'secondary-unilateral' // reference is required
-
-  cardinalityType:
-    | 'one' // source: string
-    | 'many' // source: string[]
-
-  sourceCollectionName:
-    | string // field is branded foreign key string
-    | string[] // field is union of branded foreign key strings
-
-  sourceCollectionFieldKey: string
-  targetCollectionName: string | string[]
-}
-
-export type FieldRelationBilateral = {
-  dependencyKind:
-    | 'primary-to-secondary' // source: optional -> target: required
-    | 'secondary-to-primary' // source: required -> target: optional
-    | 'primary-to-primary' // source: optional -> target: optional
-
-  cardinalityType:
-    | 'one-to-one' // source: string -> target: string
-    | 'one-to-many' // source: string -> target: string[]
-    | 'many-to-one' //  source: string[] -> target: string
-    | 'many-to-many' // source: string[] -> target: string[]
-
-  sourceCollectionName: string
-  sourceCollectionFieldKey: string
-
-  targetCollectionName: string
-  targetCollectionFieldKey: string
-}
-
-export type FieldRelation = FieldRelationUnilateral | FieldRelationBilateral
-
 export type RepoTox = {
   __schema: RepoModelSchema
   parse: (x: unknown) => ParseResult<unknown>
-}
-
-export type MutationReport = [brand: string, id: string]
-export type SafeRemoveResult = {
-  updated?: MutationReport[]
-  removed: MutationReport[]
 }
 
 export type RepoModel<
@@ -90,7 +46,6 @@ export type RepoModel<
   U extends Record<string, unknown> = Infer<T>,
 > = {
   tox: T
-  relations: FieldRelation[]
 
   mongo: (
     session?: ClientSession,
@@ -131,19 +86,6 @@ export type RepoModel<
     session?: ClientSession,
     userId?: string
   ) => Promise<undefined>
-
-  /**
-   * @description [BETA] This method is currently in beta stage.
-   */
-  safeRemove: (
-    id: U['id'],
-    session?: ClientSession,
-    userId?: string
-  ) => Promise<{
-    confirm: () => Promise<SafeRemoveResult>
-    stagedForUpdate?: MutationReport[]
-    stagedForRemove?: MutationReport[]
-  }>
 }
 
 export type InitRepo<T extends Record<string, RepoTox>> = {

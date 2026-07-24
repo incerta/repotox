@@ -1,19 +1,9 @@
 import { ERROR, USED_UUID_SYSTEM_COLLECTION } from './constants'
-import {
-  getCollectionForeignKeyRelations,
-  sanitizeMongoRecord,
-  getModifiedRepo,
-} from './utils'
+import { getSchemaKeys, sanitizeMongoRecord, getModifiedRepo } from './utils'
 
 import type { ClientSession, MongoClient } from 'mongodb'
 
-import type {
-  CommonDoc,
-  InitRepo,
-  MutationReport,
-  RepoTox,
-  SafeRemoveResult,
-} from './types'
+import type { CommonDoc, InitRepo, RepoTox } from './types'
 
 export function initRepo<T extends Record<string, RepoTox>>(
   mongoClient: MongoClient,
@@ -32,7 +22,7 @@ export async function initRepo<T extends Record<string, RepoTox>>(
   const __uuid = db.collection<{ id: string }>(USED_UUID_SYSTEM_COLLECTION)
 
   for (const collectionName in modelToxByCollectionName) {
-    const { tox, schemaKeys, relations } = getCollectionForeignKeyRelations(
+    const { tox, schemaKeys } = getSchemaKeys(
       modelToxByCollectionName,
       collectionName
     )
@@ -158,249 +148,6 @@ export async function initRepo<T extends Record<string, RepoTox>>(
       return undefined
     }
 
-    const safeRemove = async (
-      id: string,
-      session: ClientSession | undefined,
-      userId: string | undefined
-    ) => {
-      const stagedForRemove = [] as MutationReport[]
-      const stagedForUpdate = [] as MutationReport[]
-
-      const confirmQueue = [] as Array<() => Promise<SafeRemoveResult>>
-      const updateQueue = [] as Array<() => Promise<MutationReport[]>>
-
-      const [sourceRecord] = await get({ id }, session)
-
-      if (sourceRecord === undefined) {
-        throw Error('Missing source record')
-      }
-
-      for (const relation of relations) {
-        switch (relation.dependencyKind) {
-          case 'primary-to-secondary': {
-            const targetCollection = result[relation.targetCollectionName]
-
-            if (targetCollection === undefined) {
-              throw Error('Missing targetCollection')
-            }
-
-            const records = (await targetCollection.get(
-              {
-                [relation.targetCollectionFieldKey]: (() => {
-                  switch (relation.cardinalityType) {
-                    case 'one-to-one':
-                    case 'many-to-one': {
-                      return id
-                    }
-
-                    default: {
-                      throw Error(
-                        `Not supported relation cardinality type: ${relation.cardinalityType}`
-                      )
-                    }
-                  }
-                })(),
-              },
-              session
-            )) as CommonDoc[]
-
-            for (const record of records) {
-              stagedForRemove.push([relation.targetCollectionName, record.id])
-
-              const deepRemove = await targetCollection.safeRemove(record.id)
-
-              confirmQueue.push(deepRemove.confirm)
-
-              if (deepRemove.stagedForRemove) {
-                for (const x of deepRemove.stagedForRemove) {
-                  stagedForRemove.push(x)
-                }
-              }
-            }
-
-            break
-          }
-
-          case 'secondary-to-primary': {
-            const targetCollection = result[relation.targetCollectionName]!
-
-            if (targetCollection === undefined) {
-              throw Error('Missing targetCollection')
-            }
-
-            switch (relation.cardinalityType) {
-              case 'one-to-one': {
-                const targetId = sourceRecord[relation.sourceCollectionFieldKey]
-
-                if (targetId === undefined) {
-                  throw Error('Missing targetId')
-                }
-
-                const [targetInitial] = (await targetCollection.get({
-                  id: targetId,
-                })) as Array<Record<string, unknown> | undefined>
-
-                if (targetInitial === undefined) {
-                  break
-                }
-
-                const hasReference =
-                  targetInitial[relation.targetCollectionFieldKey] === id
-
-                if (hasReference) {
-                  const feedback = [
-                    relation.targetCollectionName,
-                    targetId,
-                  ] as MutationReport
-
-                  updateQueue.push(async () => {
-                    targetCollection.put(
-                      {
-                        ...targetInitial,
-                        [relation.targetCollectionFieldKey]: undefined,
-                      },
-                      session,
-                      userId
-                    )
-
-                    return [feedback] as const
-                  })
-
-                  stagedForUpdate.push(feedback)
-                  break
-                }
-
-                break
-              }
-
-              case 'one-to-many': {
-                const targetId = sourceRecord[relation.sourceCollectionFieldKey]
-                const [targetInitial] = (await targetCollection.get({
-                  id: targetId,
-                })) as Array<Record<string, any>>
-
-                if (targetInitial === undefined) {
-                  break
-                }
-
-                const hasReference =
-                  targetInitial[relation.targetCollectionFieldKey]?.includes(id)
-
-                if (hasReference) {
-                  const feedback = [
-                    relation.targetCollectionName,
-                    targetId,
-                  ] as MutationReport
-
-                  updateQueue.push(async () => {
-                    const updatedTarget = {
-                      ...targetInitial,
-                      [relation.targetCollectionFieldKey]: targetInitial[
-                        relation.targetCollectionFieldKey
-                      ].filter((referenceId: string) => referenceId !== id),
-                    }
-
-                    targetCollection.put(updatedTarget, session, userId)
-
-                    return [feedback] as const
-                  })
-
-                  stagedForUpdate.push(feedback)
-                }
-
-                break
-              }
-            }
-
-            break
-          }
-
-          default: {
-            console.info(id, relation)
-            throw Error(
-              `Not supported relation dependencyKind: ${relation.dependencyKind}`
-            )
-          }
-        }
-      }
-
-      return {
-        stagedForRemove: stagedForRemove.length ? stagedForRemove : undefined,
-        stagedForUpdate: stagedForUpdate.length ? stagedForUpdate : undefined,
-
-        confirm: async () => {
-          const result: SafeRemoveResult = {
-            removed: [],
-            updated: [],
-          }
-
-          for (const confirm of confirmQueue) {
-            const confirmed = await confirm()
-
-            result.removed = result.removed.concat(confirmed.removed)
-
-            if (confirmed.updated) {
-              result.updated = (result.updated || []).concat(confirmed.updated)
-            }
-          }
-
-          for (const update of updateQueue) {
-            const updates = await update()
-            result.updated = (result.updated || []).concat(updates)
-          }
-
-          await remove(id, session)
-
-          result.removed.push([collectionName, id])
-
-          const deduplicatedResult: SafeRemoveResult = {
-            removed: [],
-            updated: [],
-          }
-
-          const getUniqueId = (x: MutationReport) => x[0] + x[1]
-
-          const removedUniqueIds = new Set<string>()
-
-          for (const change of result.removed) {
-            const uniqueId = getUniqueId(change)
-
-            if (removedUniqueIds.has(uniqueId)) {
-              continue
-            }
-
-            removedUniqueIds.add(uniqueId)
-            deduplicatedResult.removed.push(change)
-          }
-
-          const updatedUniqueIds = new Set<string>()
-
-          if (result.updated) {
-            for (const change of result.updated) {
-              const [brand, recordId] = change
-              const uniqueId = brand + recordId
-
-              if (
-                updatedUniqueIds.has(uniqueId) ||
-                removedUniqueIds.has(uniqueId)
-              ) {
-                continue
-              }
-
-              updatedUniqueIds.add(uniqueId)
-              deduplicatedResult.updated?.push(change)
-            }
-          }
-
-          if (deduplicatedResult.updated?.length === 0) {
-            delete deduplicatedResult.updated
-          }
-
-          return deduplicatedResult
-        },
-      }
-    }
-
     /**
      * Use "mongodb" driver directly
      **/
@@ -415,9 +162,7 @@ export async function initRepo<T extends Record<string, RepoTox>>(
       mongo,
       post,
       put,
-      relations,
       remove,
-      safeRemove,
       tox,
     }
   }

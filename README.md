@@ -1,14 +1,12 @@
 # Repotox
 
-A lightweight schema-based ORM for MongoDB driver built on top of [Schematox](https://github.com/schematox/schematox) validation library.
+A lightweight schema-based ODM for MongoDB driver built on top of [Schematox](https://github.com/schematox/schematox) validation library schema types.
 
 **Status**: Alpha version - API going to be changed
 
 ## Features
 
 - **Schema-first approach**: Define your data models using Schematox schemas
-- **Automatic relationship management**: Define foreign key relationships with brand types
-- **Safe cascading operations**: Safe removal with dependency tracking
 - **Type safety**: Full TypeScript support with compile-time type checking
 - **MongoDB native**: Built on top of MongoDB Node.js driver
 - **Session support**: Built-in support for MongoDB transactions
@@ -30,26 +28,21 @@ npm install schematox mongodb
 
 ```typescript
 import * as x from 'schematox'
-import { initRepo, FOREIGN_KEY_BRAND_TYPE } from 'repotox'
+import { initRepo } from 'repotox'
 import { MongoClient } from 'mongodb'
-
-// Define branded types for foreign keys
-const userId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'user')
-const postId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'post')
 
 // Define your schemas
 const userSchema = x.object({
-  id: userId,
+  id: x.string(),
   name: x.string(),
   email: x.string(),
-  postIds: x.array(postId).optional(), // One-to-many relationship
 })
 
 const postSchema = x.object({
-  id: postId,
+  id: x.string(),
   title: x.string(),
   content: x.string(),
-  userId: userId, // Many-to-one relationship
+  userId: x.string(),
 })
 
 // Initialize repository
@@ -80,85 +73,17 @@ const post = await repo.post.post({
 
 ### Schema Definition
 
-Repotox uses Schematox for schema validation. All models must have an `id` field with a branded type:
+Repotox uses Schematox for schema validation. All models must have an `id` field:
 
 ```typescript
 import * as x from 'schematox'
-import { FOREIGN_KEY_BRAND_TYPE } from 'repotox'
-
-const userId = x.string().brand(FOREIGN_KEY_BRAND_TYPE, 'user')
 
 const userSchema = x.object({
-  id: userId, // Required: every model must have an id field
+  id: x.string(), // Required: every model must have an id field
   name: x.string(),
   age: x.number().optional(),
 })
 ```
-
-### Relationship Types
-
-Repotox supports various relationship patterns through foreign key branding:
-
-#### One-to-One Relationships
-
-```typescript
-const userSchema = x.object({
-  id: userId,
-  profileId: profileId.optional(), // Optional = primary side
-})
-
-const profileSchema = x.object({
-  id: profileId,
-  userId: userId, // Required = secondary side
-})
-```
-
-#### One-to-Many Relationships
-
-```typescript
-const userSchema = x.object({
-  id: userId,
-  postIds: x.array(postId).optional(), // Array = many side
-})
-
-const postSchema = x.object({
-  id: postId,
-  userId: userId, // Single reference = one side
-})
-```
-
-#### Many-to-Many Relationships
-
-```typescript
-const userSchema = x.object({
-  id: userId,
-  roleIds: x.array(roleId).optional(),
-})
-
-const roleSchema = x.object({
-  id: roleId,
-  userIds: x.array(userId).optional(),
-})
-```
-
-### Dependency Kinds
-
-Relationships have dependency kinds that affect cascading behavior:
-
-- **primary-to-secondary**: Primary side controls the relationship
-- **secondary-to-primary**: Secondary side depends on primary
-- **primary-to-primary**: Both sides are optional (weak relationship)
-- **primary-unilateral**: One-way relationship, no back-reference
-- **secondary-unilateral**: One-way relationship from dependent side
-
-### Cardinality Types
-
-- `one`: Single reference
-- `many`: Array of references
-- `one-to-one`: Bidirectional single references
-- `one-to-many`: One side has array, other has single reference
-- `many-to-one`: Inverse of one-to-many
-- `many-to-many`: Both sides have arrays
 
 ## Repository API
 
@@ -233,23 +158,6 @@ await repo.user.remove('user1')
 await repo.user.remove(['user1', 'user2'])
 ```
 
-#### `safeRemove(id, session?, userId?)`
-
-Safely remove records with cascade handling:
-
-```typescript
-const result = await repo.user.safeRemove('user1')
-
-// Review what will be affected
-console.log('Will be removed:', result.stagedForRemove)
-console.log('Will be updated:', result.stagedForUpdate)
-
-// Confirm the operation
-const finalResult = await result.confirm()
-console.log('Removed:', finalResult.removed)
-console.log('Updated:', finalResult.updated)
-```
-
 #### `mongo(session?, userId?)`
 
 Access the underlying MongoDB collection:
@@ -301,29 +209,6 @@ const animalSchema = x.union([
 ])
 ```
 
-### Ignoring Relations
-
-To create a foreign key field without enforcing the relationship:
-
-```typescript
-const postSchema = x.object({
-  id: postId,
-  authorId: userId.description(IGNORE_RELATION), // No relationship enforcement
-})
-```
-
-### Custom Validation
-
-All Schematox validation features are supported:
-
-```typescript
-const userSchema = x.object({
-  id: userId,
-  email: x.string().refine((email) => email.includes('@'), 'Invalid email'),
-  age: x.number().min(0).max(120),
-})
-```
-
 ## Error Handling
 
 Repotox provides detailed error messages for common issues:
@@ -343,10 +228,7 @@ try {
 Common error types:
 
 - Schema validation errors
-- Missing required relationships
 - Duplicate ID errors
-- Invalid foreign key references
-- Forbidden relationship configurations
 
 ## Type Safety
 
@@ -365,8 +247,6 @@ const user: User = await repo.user.get({ id: 'user1' })[0]
 
 ```typescript
 import {
-  FOREIGN_KEY_BRAND_TYPE, // 'idFor' - for branding foreign keys
-  IGNORE_RELATION, // 'ignore-relation' - disable relationship enforcement
   ERROR, // Error message generators
 } from 'repotox'
 ```
