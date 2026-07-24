@@ -1,6 +1,13 @@
 {
   "name": "repotox",
   "version": "0.0.8",
+  "description": "Maps schematox schemas to typed mongodb collections",
+  "author": "Kanstantsin Mazur",
+  "license": "MIT",
+  "keywords": [
+    "schematox",
+    "mongodb"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest",
@@ -24,25 +31,22 @@
     "typescript": "^5.3.2",
     "vitest": "^3.2.6"
   },
-  "description": "Maps schematox schemas to typed mongodb collections",
-  "author": "Kanstantsin Mazur",
-  "license": "MIT",
-  "keywords": [
-    "typescript",
-    "schematox",
-    "mongodb"
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/incerta/repotox.git"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
-  }
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
 }

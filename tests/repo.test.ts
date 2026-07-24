@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as x from 'schematox'
-import { initRepoHelper, connectDB, dropDB } from './test-helpers'
+import { initRepoHelper, connectDB, dropDB } from './test-helpers.js'
 
 import type { Infer } from 'schematox'
 
