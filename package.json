@@ -15,16 +15,16 @@
     "version:major": "npm run check && npm version major"
   },
   "peerDependencies": {
-    "mongodb": "^6.8.0",
-    "schematox": "^1.2.0",
+    "mongodb": "^6.21.0",
+    "schematox": "2.0.0-alpha.1784914313",
     "typescript": ">=5.3.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "jest": "^29.5.0",
-    "mongodb": "^6.9.0",
+    "mongodb": "^6.21.0",
     "prettier": "^3.1.1",
-    "schematox": "^1.2.0",
+    "schematox": "^2.0.0-alpha.1784914313",
     "ts-jest": "^29.1.0",
     "typescript": "^5.3.2"
   },
