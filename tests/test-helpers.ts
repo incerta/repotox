@@ -21,14 +21,12 @@ export async function dropDB() {
   }
 }
 
-export async function initRepoHelper<T extends Record<string, RepoTox>>(
-  models: T
-) {
+export function initRepoHelper<T extends Record<string, RepoTox>>(models: T) {
   if (connection === undefined) {
     throw new Error('Apply `beforeEach(connectDB)` and `afterEach(dropDB)`')
   }
 
-  return await initRepo(connection, DB_NAME, models)
+  return initRepo(connection, DB_NAME, models)
 }
 
 export async function dbConnect() {

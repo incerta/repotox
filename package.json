@@ -24,15 +24,13 @@
     "typescript": "^5.3.2",
     "vitest": "^3.2.6"
   },
-  "description": "Lightweight schematox schema based ORM for mongodb driver",
+  "description": "Maps schematox schemas to typed mongodb collections",
   "author": "Kanstantsin Mazur",
   "license": "MIT",
   "keywords": [
     "typescript",
     "schematox",
-    "mongodb",
-    "ODM",
-    "ORM"
+    "mongodb"
   ],
   "repository": {
     "type": "git",
