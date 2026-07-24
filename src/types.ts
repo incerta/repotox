@@ -27,19 +27,19 @@ export type BaseRepoModelSchema = ObjectSchema<
 export type UnionRepoModelSchema = UnionSchema<Array<BaseRepoModelSchema>>
 export type RepoModelSchema = BaseRepoModelSchema | UnionRepoModelSchema
 
-export type RepoTox = {
+export type RepoStruct = {
   __schema: RepoModelSchema
   parse: (x: unknown) => ParseResult<unknown>
 }
 
 export type RepoModel<
-  T extends RepoTox = RepoTox,
+  T extends RepoStruct = RepoStruct,
   U extends Record<string, unknown> = Infer<T>,
 > = {
   collection: Collection<U>
   schema: T
 }
 
-export type InitRepo<T extends Record<string, RepoTox>> = {
+export type InitRepo<T extends Record<string, RepoStruct>> = {
   [k in keyof T]: RepoModel<T[k]>
 }

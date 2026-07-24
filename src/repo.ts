@@ -1,7 +1,7 @@
 import type { MongoClient } from 'mongodb'
-import type { InitRepo, RepoTox } from './types.ts'
+import type { InitRepo, RepoStruct } from './types.ts'
 
-export function initRepo<T extends Record<string, RepoTox>>(
+export function initRepo<T extends Record<string, RepoStruct>>(
   mongoClient: MongoClient,
   dbName: string,
   modelSchemaByCollectionName: T

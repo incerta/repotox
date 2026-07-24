@@ -1,2 +1,2 @@
 export { initRepo } from './repo.js'
-export type { InitRepo, RepoTox } from './types.ts'
+export type { InitRepo, RepoStruct as RepoTox } from './types.ts'
