@@ -30,6 +30,13 @@ export function initRepoHelper<T extends Record<string, RepoTox>>(models: T) {
 }
 
 export async function dbConnect() {
-  const dbUrl = `mongodb://root:root@localhost/?authSource=admin&retryWrites=false`
-  return await MongoClient.connect(dbUrl)
+  const uri = process.env.MONGO_URI
+
+  if (uri === undefined) {
+    throw new Error(
+      'MONGO_URI is not set - is the vitest "globalSetup" running?'
+    )
+  }
+
+  return await MongoClient.connect(uri, { retryWrites: false })
 }
